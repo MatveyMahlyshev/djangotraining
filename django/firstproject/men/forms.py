@@ -30,7 +30,7 @@ class AddPostForm(forms.Form):
     slug = forms.SlugField(max_length=255, label='Слаг:',
                            validators=[
                                MinLengthValidator(5, message='Слишком короткий слаг.'),
-                               MaxLengthValidator(100),
+                               MaxLengthValidator(100, message='Максимум 100 символов'),
                            ]
                            )
     content = forms.CharField(widget=forms.Textarea(attrs={'cols': 50, 'rows': 5}), required=False, label='Текст:', )
@@ -43,4 +43,4 @@ class AddPostForm(forms.Form):
         title = self.cleaned_data['title']
         ALLOWED_CHARS = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийкламнопрстуфхцшщъыьэюя-1234567890 '
         if not (set(title) <= set(ALLOWED_CHARS)):
-            raise ValidationError('Должны присутствовать только руссие символы, дефис и пробел.')
+            raise ValidationError('Должны присутствовать только русские символы, дефис и пробел.')

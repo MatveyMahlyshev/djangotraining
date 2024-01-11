@@ -5,7 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/firstproject" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/djvenv" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (django)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
