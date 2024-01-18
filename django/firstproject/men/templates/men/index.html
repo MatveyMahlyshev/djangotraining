@@ -5,6 +5,11 @@
     {% for p in posts %}
     {{p.posts}}
     {{ p.time_update|date:"d-m-Y H:i:s"}}
+
+    {% if p.photo %}
+    <p><img class="img-article-left" src="{{p.photo.url}}"></p>
+    {% endif %}
+
     <li><h2>{{p.title}}</h2>
         {% autoescape off%}
         {{p.content|linebreaks|truncatewords:20}}

@@ -1,13 +1,10 @@
-import django.http
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpResponseNotFound, Http404, QueryDict, HttpResponseRedirect
-from datetime import datetime
-from django.urls import reverse
-from django.template.loader import render_to_string
-from django.template.defaultfilters import slugify
+from django.http import HttpResponse, HttpResponseNotFound
+from django.views import View
+from django.views.generic import TemplateView
 
-from men.forms import AddPostForm
-from men.models import Men, Category, TagPost
+from men.forms import AddPostForm, UploadFileForm
+from men.models import Men, Category, TagPost, UploadFiles
 
 menu = [
     {'title': 'О сайте', 'url_name': 'about'},
@@ -16,24 +13,40 @@ menu = [
     {'title': 'Войти', 'url_name': 'login'}
 ]
 
-data_db = [
-    {'id': 1, 'title': 'Криштиану Роналду', 'content': '''Криштиану Роналду родился 5 февраля 1985 года в португальском городе Фуншал на острове Мадейра в простой небогатой семье. Мать Роналду — Мария Долореш была поваром, а отец — садовником. Криштиану оказался четвертым ребенком в семье — у Роналду есть старший брат Угу и две старшие сестры Эльма и Лилиана Катя.
-Португалец начал играть в футбол в три года. В шесть лет Роналду пошел в школу и попал в академию «Андориньи», где подрабатывал отец, подготавливая форму к играм. С учебой у португальца не ладилось — он получал хорошие оценки, но регулярно нарушал дисциплину. В 14 лет Роналду исключили из школы за то, что он бросил в учителя стулом.''',
-     'is_published': True},
-    {'id': 2, 'title': 'Джонни Депп', 'content': 'Биография Джонни Деппа', 'is_published': True},
-    {'id': 3, 'title': 'Леонардо Ди Каприо', 'content': 'Биография Леонардо Ди Каприо', 'is_published': False},
-]
 
-
-def index(request):
-    posts = Men.published.all().select_related('cat')
-
-    data = {'title': 'Главная страница',
+class AddPage(View):
+    def get(self, request):
+        form = AddPostForm()
+        data = {
             'menu': menu,
-            'posts': posts,
-            'cat_selected': 0,
-            }
-    return render(request, 'men/index.html', context=data)
+            'title': 'Добавление статьи',
+            'form': form
+        }
+        return render(request, 'men/add_page.html', context=data)
+
+    def post(self, request):
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        data = {
+            'menu': menu,
+            'title': 'Добавление статьи',
+            'form': form
+        }
+        return render(request, 'men/add_page.html', context=data)
+
+
+class MenHome(TemplateView):
+    template_name = 'men/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Главная страница'
+        context['menu'] = menu
+        context['posts'] = Men.published.all().select_related('cat')
+        context['cat_selected'] = int(self.request.GET.get('cat_id', 0))
+        return context
 
 
 def page_not_found(request, exception):
@@ -41,7 +54,15 @@ def page_not_found(request, exception):
 
 
 def about(request):
-    return render(request, 'men/about.html', {'title': 'О сайте', 'menu': menu})
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            fp = UploadFiles(file=form.cleaned_data['file'])
+            fp.save()
+
+    else:
+        form = UploadFileForm()
+    return render(request, 'men/about.html', {'title': 'О сайте', 'menu': menu, 'form': form})
 
 
 def show_post(request, post_slug):
@@ -53,25 +74,6 @@ def show_post(request, post_slug):
         'cat_selected': 1
     }
     return render(request, 'men/post.html', data)
-
-
-def add_page(request):
-    if request.method == 'POST':
-        form = AddPostForm(request.POST)
-        if form.is_valid():
-            try:
-                Men.objects.create(**form.cleaned_data)
-                return redirect('home')
-            except:
-                form.add_error(None, 'Ошибка добавления поста')
-    else:
-        form = AddPostForm()
-    data = {
-        'menu': menu,
-        'title': 'Добавление статьи',
-        'form': form
-    }
-    return render(request, 'men/add_page.html', context=data)
 
 
 def contact(request):
