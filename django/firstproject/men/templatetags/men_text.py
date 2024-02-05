@@ -3,8 +3,14 @@ from django.db.models import Count
 
 import men.views as views
 from men.models import Category, TagPost
+from men.utils import menu
 
 register = template.Library()
+
+
+@register.simple_tag
+def get_menu():
+    return menu
 
 
 @register.inclusion_tag('men/list_categories.html')

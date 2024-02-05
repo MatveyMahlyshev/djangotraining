@@ -1,17 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.urls import reverse
-
-
-def translit_to_eng(s: str) -> str:
-    d = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
-         'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k',
-         'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
-         'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'c', 'ч': 'ch',
-         'ш': 'sh', 'щ': 'shch', 'ь': '', 'ы': 'y', 'ъ': '', 'э': 'r', 'ю': 'yu', 'я': 'ya'}
-
-    return "".join(map(lambda x: d[x] if d.get(x, False) else x, s.lower()))
 
 
 class PublishedManager(models.Manager):
@@ -40,6 +31,8 @@ class Men(models.Model):
     tags = models.ManyToManyField('TagPost', blank=True, related_name='tags', verbose_name='Тэги')
     wife = models.OneToOneField('Wife', on_delete=models.SET_NULL, null=True, blank=True, related_name='mean',
                                 verbose_name='Супруга')
+    author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL,
+                               related_name='posts', null=True, default=None)
     objects = models.Manager()
     published = PublishedManager()
 
@@ -58,7 +51,6 @@ class Men(models.Model):
         return reverse('post', kwargs={'post_slug': self.slug})
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(translit_to_eng(self.title))
         super().save(*args, **kwargs)
 
 
