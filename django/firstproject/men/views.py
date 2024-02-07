@@ -17,6 +17,7 @@ class AddPage(PermissionRequiredMixin, DataMixin, CreateView):
     template_name = 'men/add_page.html'
     title_page = 'Добавить статью'
     permission_required = 'men.add_men'
+    
 
     def form_valid(self, form):
         m = form.save(commit=False)
@@ -80,9 +81,8 @@ class ShowPost(DataMixin, DetailView):
         return get_object_or_404(Men.published, slug=self.kwargs[self.slug_url_kwarg])
 
 
-@permission_required(perm='men.view_men', raise_exception=True)
-def contact(request):
-    return HttpResponse('Обратная связь')
+class ContactFormView(LoginRequiredMixin, DataMixin, FormView):
+    pass
 
 
 def login(request):
