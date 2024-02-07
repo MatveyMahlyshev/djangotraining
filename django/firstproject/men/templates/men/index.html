@@ -14,7 +14,7 @@
         {% endautoescape %}
         <div class="clear"></div>
         <p class="link-read-post"><a href="{{ p.get_absolute_url }}">Читать пост</a></p>
-        <p>Автор: {{p.author.username|default:"Неизвестен"}}</p>
+        <p>Автор: {{p.author.first_name|default:"Неизвестен"}}</p>
     </li>
 
     {% endfor %}

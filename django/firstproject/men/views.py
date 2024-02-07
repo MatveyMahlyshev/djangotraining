@@ -1,5 +1,5 @@
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound
@@ -12,10 +12,11 @@ from men.models import Men, Category, TagPost, UploadFiles
 from men.utils import DataMixin
 
 
-class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+class AddPage(PermissionRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'men/add_page.html'
     title_page = 'Добавить статью'
+    permission_required = 'men.add_men'
 
     def form_valid(self, form):
         m = form.save(commit=False)
@@ -23,13 +24,13 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
         return super().form_valid(form)
 
 
-class UpdatePage(DataMixin, UpdateView):
+class UpdatePage(PermissionRequiredMixin, DataMixin, UpdateView):
     model = Men
     fields = ['title', 'content', 'photo', 'is_published', 'cat']
     template_name = 'men/add_page.html'
     success_url = reverse_lazy('home')
     title_page = 'Редактирование статьи'
-
+    permission_required = 'men.change_men'
 
 
 class DeletePage(DeleteView):
@@ -79,6 +80,7 @@ class ShowPost(DataMixin, DetailView):
         return get_object_or_404(Men.published, slug=self.kwargs[self.slug_url_kwarg])
 
 
+@permission_required(perm='men.view_men', raise_exception=True)
 def contact(request):
     return HttpResponse('Обратная связь')
 

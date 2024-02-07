@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from django.utils.safestring import mark_safe
 
-from .models import Men, Category
+from .models import Men, Category, TagPost, Wife
 
 
 class MarriedFilter(admin.SimpleListFilter):
@@ -35,6 +35,7 @@ class MenAdmin(admin.ModelAdmin):
     search_fields = ['title__startswith', 'cat__name']
     list_filter = [MarriedFilter, 'cat__name', 'is_published']
     save_on_top = True
+
     @admin.display(description='Фото')
     def post_photo(self, men: Men):
         if men.photo:
@@ -56,6 +57,20 @@ class MenAdmin(admin.ModelAdmin):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'slug')
+    list_display_links = ('id', 'name')
+    ordering = ['id']
+
+
+@admin.register(TagPost)
+class TapPostAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tag', 'slug')
+    list_display_links = ('id', 'tag')
+    ordering = ['id']
+
+
+@admin.register(Wife)
+class WifeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'age')
     list_display_links = ('id', 'name')
     ordering = ['id']
 

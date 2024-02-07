@@ -73,6 +73,10 @@ class TagPost(models.Model):
     tag = models.CharField(max_length=100, db_index=True)
     slug = models.SlugField(max_length=100, unique=True, db_index=True)
 
+    class Meta:
+        verbose_name = 'Тэг'
+        verbose_name_plural = 'Тэги'
+
     def __str__(self):
         return self.tag
 
@@ -84,6 +88,10 @@ class Wife(models.Model):
     name = models.CharField(max_length=100)
     age = models.IntegerField(null=True)
     m_count = models.IntegerField(blank=True, default=0)
+
+    class Meta:
+        verbose_name = 'Супругу'
+        verbose_name_plural = 'Супруги'
 
     def __str__(self):
         return self.name

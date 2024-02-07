@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-=zrnb#x^o3jwy)pnjh#_wfggb-uwaxw$hq0h%w3n5%gs%q-qm+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'menbymat.ru']
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'debug_toolbar',
     'users',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -143,9 +144,46 @@ LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'users:login'
 
 AUTHENTICATION_BACKENDS = [
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.vk.VKOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'users.authentication.EmailAuthBackend',
 ]
 
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+# настройка почты для рассылки https://yandex.ru/support/mail/mail-clients/others.html
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'mahlyshevmatvey@yandex.ru'
+EMAIL_HOST_PASSWORD = 'zhwkenubzujzqakd'
+EMAIL_USE_SSL = True
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
+EMAIL_ADMIN = EMAIL_HOST_USER
+
+AUTH_USER_MODEL = 'users.User'
+
+SOCIAL_AUTH_GITHUB_KEY = '7d8a6dcde26cd5250dc2'
+SOCIAL_AUTH_GITHUB_SECRET = 'f18e3e7424d6f29380f277ace4b8766de31b4e71'
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = '51850454'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'cgqbaRvtgAsU5GP56Yxv'
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.social_auth.associate_by_email',  # <--- enable this one
+    'social_core.pipeline.user.create_user',
+    'users.pipline.new_user_handler',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
+
