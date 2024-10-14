@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
+from men.models import Comment
 
 from .models import Category, Wife, Men
 
@@ -50,6 +51,15 @@ class AddPostForm(forms.ModelForm):
             raise ValidationError('Длина превышает 50 символов.')
         return title
 
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={'class': 'comment-input', 'rows': 2}),
+        }
 
 # Класс UploadFileForm наследуется от forms.Form, который предоставляет удобный способ создания форм без привязки к модели.
 class UploadFileForm(forms.Form):

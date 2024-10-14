@@ -27,7 +27,7 @@ class MarriedFilter(admin.SimpleListFilter):
 @admin.register(Men)
 class MenAdmin(admin.ModelAdmin):
     # Указываем поля, которые будут отображаться в форме редактирования/создания записи.
-    fields = ['title', 'slug', 'content', 'photo', 'post_photo', 'cat', 'tags', 'wife']
+    fields = ['title', 'content', 'photo', 'post_photo', 'cat', 'tags', 'wife']
     
     # Указываем поля, которые будут доступны только для чтения.
     readonly_fields = ['post_photo']

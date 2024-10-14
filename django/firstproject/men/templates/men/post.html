@@ -26,4 +26,28 @@
 {% if is_author or perms.men.change_men %}
 <p><a href="{% url 'edit_page' post.slug %}">Редактировать</a></p>
 {% endif %}
+
+<div class="comments-section">
+    <h2>Комментарии</h2>
+    <ul class="comments-list">
+        {% for comment in post.comments.all %}
+        <li>
+            <p class="comment-author">{{ comment.author.username }}</p>
+            <p class="comment-date">{{ comment.created_at }}</p>
+            <p class="comment-text">{{ comment.text }}</p>
+        </li>
+        {% empty %}
+        <li>Пока нет комментариев.</li>
+        {% endfor %}
+    </ul>
+
+    <div class="comment-form">
+        <h2>Добавить комментарий</h2>
+        <form method="post" action="{% url 'add_comment' post_slug=post.slug %}">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button type="submit">Добавить комментарий</button>
+        </form>
+    </div>
+</div>
 {% endblock %}

@@ -142,3 +142,14 @@ class Wife(models.Model):
 # Класс UploadFiles наследуется от models.Model и определяет модель для хранения загруженных файлов.
 class UploadFiles(models.Model):
     file = models.FileField(upload_to='uploads_model')
+
+
+# Класс Comment наследуется от models.Model и определяет модель для хранения комментариев.
+class Comment(models.Model):
+    post = models.ForeignKey(Men, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Комментарий от {self.author.username} к {self.post.title}'

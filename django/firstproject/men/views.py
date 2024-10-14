@@ -6,9 +6,9 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
-
-from men.forms import AddPostForm, UploadFileForm
-from men.models import Men, Category, TagPost, UploadFiles
+from .services import get_weather
+from men.forms import AddPostForm, CommentForm, UploadFileForm
+from men.models import Men, TagPost, Comment
 from men.utils import DataMixin
 
 # Класс AddPage наследуется от PermissionRequiredMixin, DataMixin и CreateView.
@@ -48,14 +48,14 @@ class DeletePage(DeleteView):
 # Класс MenHome наследуется от DataMixin и ListView.
 # Он отображает список всех опубликованных записей.
 class MenHome(DataMixin, ListView):
-    template_name = 'men/index.html'  # Указываем шаблон, который будет использоваться для отображения списка записей.
-    context_object_name = 'posts'  # Указываем имя переменной контекста, которая будет содержать список записей.
-    title_page = 'Главная страница'  # Указываем заголовок страницы.
-    cat_selected = 0  # Указываем, что выбрана категория с ID 0 (все категории).
+    template_name = 'men/index.html'
+    context_object_name = 'posts'
+    title_page = 'Главная страница'
+    cat_selected = 0
 
-    # Метод get_queryset возвращает queryset с опубликованными записями.
     def get_queryset(self):
         return Men.published.all().select_related('cat')
+
 
 # Функция page_not_found обрабатывает ошибку 404 (страница не найдена).
 def page_not_found(request, exception):
@@ -74,21 +74,22 @@ def about(request):
 
 # Класс ShowPost наследуется от DataMixin и DetailView.
 # Он отображает детали конкретной записи.
-class ShowPost(DataMixin, DetailView):
-    model = Men  # Указываем модель, из которой будем получать запись.
-    template_name = 'men/post.html'  # Указываем шаблон, который будет использоваться для отображения записи.
-    slug_url_kwarg = 'post_slug'  # Указываем имя параметра URL, который содержит слаг записи.
-    context_object_name = 'post'  # Указываем имя переменной контекста, которая будет содержать запись.
+from django.shortcuts import render, get_object_or_404
+from django.views.generic import DetailView
+from men.models import Men
+from men.forms import CommentForm
 
-    # Метод get_context_data добавляет дополнительные данные в контекст.
+class ShowPost(DetailView):
+    model = Men
+    template_name = 'men/post.html'
+    slug_url_kwarg = 'post_slug'
+    context_object_name = 'post'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['comment_form'] = CommentForm()
         context['is_author'] = self.request.user == context['post'].author  # Проверяем, является ли текущий пользователь автором записи.
-        return self.get_mixin_context(context, title=context['post'].title)  # Возвращаем обновленный контекст.
-
-    # Метод get_object возвращает объект записи.
-    def get_object(self, queryset=None):
-        return get_object_or_404(Men.published, slug=self.kwargs[self.slug_url_kwarg])
+        return context
 
 # Класс ContactFormView наследуется от LoginRequiredMixin, DataMixin и FormView.
 # Он отображает форму обратной связи.
@@ -131,3 +132,21 @@ class TagPostList(DataMixin, ListView):
         tag_name = TagPost.objects.get(slug=self.kwargs['tag_slug'])  # Получаем тег по слагу.
         context = super().get_context_data(**kwargs)
         return self.get_mixin_context(context, cat_selected=None, title=f'Тег - {tag_name}')  # Возвращаем обновленный контекст.
+
+
+class AddCommentView(FormView):
+    form_class = CommentForm
+    template_name = 'men/add_comment.html'
+
+    def form_valid(self, form):
+        post = get_object_or_404(Men, slug=self.kwargs['post_slug'])
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.author = self.request.user
+        comment.save()
+        return redirect('post', post_slug=post.slug)  # Исправьте имя шаблона на 'post'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post'] = get_object_or_404(Men, slug=self.kwargs['post_slug'])
+        return context
