@@ -72,11 +72,12 @@ class ProfileUserForm(forms.ModelForm):
         # Используем модель пользователя, которая определена в проекте
         model = get_user_model()
         # Указываем поля, которые будут отображаться в форме
-        fields = ['photo', 'username', 'email', 'date_of_birth', 'first_name', 'last_name']
+        fields = ['photo', 'username', 'email', 'gender', 'date_of_birth', 'first_name', 'last_name']
         # Устанавливаем метки для полей формы
         labels = {
             'first_name': 'Имя',
             'last_name': 'Фамилия',
+            'gender': 'Пол',
         }
         # Настраиваем виджеты для полей формы
         widgets = {

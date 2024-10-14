@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+
 from men.models import Men
 
 # Класс MenSerializer наследуется от ModelSerializer, который предоставляет удобный способ сериализации и десериализации объектов модели.

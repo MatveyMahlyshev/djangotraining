@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
+import requests
 
 from users.forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
 
@@ -25,6 +26,31 @@ class RegisterUser(CreateView):
     extra_context = {'title': 'Регистрация'}
     # Указываем URL для перенаправления после успешной регистрации
     success_url = reverse_lazy('users:login')
+
+    def form_valid(self, form):
+        # Сохраняем форму, чтобы получить объект пользователя
+        response = super().form_valid(form)
+        user = self.object
+
+        # Получаем имя пользователя из поля first_name
+        first_name = user.first_name
+
+        if first_name:
+            # Формируем URL для запроса к Genderize API
+            url = f"https://api.genderize.io/?name={first_name}"
+            genderize_response = requests.get(url)
+
+            if genderize_response.status_code == 200:
+                # Получаем данные о поле из ответа API
+                gender_data = genderize_response.json()
+                gender = gender_data.get('gender')
+
+                if gender:
+                    # Обновляем поле gender в модели User
+                    user.gender = gender
+                    user.save()
+
+        return response
 
 # Класс для представления страницы профиля пользователя
 class ProfileUser(LoginRequiredMixin, UpdateView):

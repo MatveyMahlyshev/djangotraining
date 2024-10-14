@@ -1,6 +1,7 @@
+# urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from api.views import MenViewSet
+from api.views import MenViewSet, GenderizeView
 
 # Создаем экземпляр DefaultRouter, который автоматически генерирует URL-маршруты для ViewSet.
 router = DefaultRouter()
@@ -13,4 +14,6 @@ router.register(r'men', MenViewSet, basename='men')
 urlpatterns = [
     # Включаем URL-маршруты, сгенерированные DefaultRouter, в путь 'api/'.
     path('api/', include(router.urls)),
+    path('api/genderize/', GenderizeView.as_view(), name='genderize')
+    
 ]
