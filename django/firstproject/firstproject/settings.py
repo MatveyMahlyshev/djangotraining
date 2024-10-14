@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'api',
     'rest_framework',
     'django_filters',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -212,5 +213,3 @@ REST_FRAMEWORK = {
 
 }
 
-# settings.py
-OPENWEATHERMAP_API_KEY = '9f29294a41f3c81f917b957b10f54892'

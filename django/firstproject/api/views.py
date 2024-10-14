@@ -1,4 +1,3 @@
-from django.http import JsonResponse
 import requests
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import PageNumberPagination
