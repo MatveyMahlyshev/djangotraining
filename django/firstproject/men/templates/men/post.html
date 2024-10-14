@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block breadcrumbs %}
-
 <!-- Теги -->
 {% with post.tags.all as tags %}
 {% if tags %}
@@ -23,7 +22,8 @@
 {% endif %}
 
 {{post.content|linebreaks}}
-{% if perms.men.change_men %}
-<p><a href="{% url 'edit_page' post.slug%}">Редактировать</a></p>
+
+{% if is_author or perms.men.change_men %}
+<p><a href="{% url 'edit_page' post.slug %}">Редактировать</a></p>
 {% endif %}
 {% endblock %}
